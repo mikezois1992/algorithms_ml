@@ -1,11 +1,15 @@
 import streamlit as st
 import pandas as pd
-from sklearn.preprocessing import StandardScaler
+from matplotlib import pyplot as plt
+from sklearn.metrics import accuracy_score, confusion_matrix, ConfusionMatrixDisplay, roc_curve, auc
+from sklearn.model_selection import train_test_split
+from sklearn.preprocessing import StandardScaler, label_binarize
 import plotly.express as px
 
 from algorithms.dbscan import DBSCANHandler
 from algorithms.eda import EDAHandler
 from algorithms.kmeans import KMeansHandler
+from algorithms.logistic_regression import LogisticRegressionClassifier
 from algorithms.pca import PCAHandler
 from algorithms.tsne import TSNEHandler
 
@@ -52,7 +56,60 @@ if uploaded_file is not None:
         eda_handler.perform_eda()
 
     with tabs[1]:
-        st.header("Classification Report")
+        st.header("Logistic Regression")
+
+        # Assuming the last column is the target variable
+        X = df.iloc[:, :-1]
+        y = df.iloc[:, -1]
+
+        # Binarize the output
+        y_bin = label_binarize(y, classes=list(y.unique()))
+        n_classes = y_bin.shape[1]
+
+        # Split the data
+        X_train, X_test, y_train, y_test = train_test_split(X, y_bin, test_size=0.3, random_state=42)
+
+
+        def plot_classification_results(model, X_test, y_test, y_pred, y_score, model_name):
+            # Display accuracy for each class
+            st.write(f"### {model_name}")
+            for i in range(n_classes):
+                accuracy = accuracy_score(y_test[:, i], y_pred[:, i])
+                st.write(f"Accuracy for class {i}: {accuracy:.2f}")
+
+            # Plot Confusion Matrix for each class
+            for i in range(n_classes):
+                cm = confusion_matrix(y_test[:, i], y_pred[:, i])
+                fig, ax = plt.subplots()
+                disp = ConfusionMatrixDisplay(confusion_matrix=cm, display_labels=[f'Class {i}', f'Not Class {i}'])
+                disp.plot(ax=ax)
+                st.write(f"Confusion Matrix for class {i} ({model_name})")
+                st.pyplot(fig)
+
+            # Plot ROC Curve for each class
+            fig, ax = plt.subplots()
+            for i in range(n_classes):
+                fpr, tpr, _ = roc_curve(y_test[:, i], y_score[:, i])
+                roc_auc = auc(fpr, tpr)
+                ax.plot(fpr, tpr, lw=2, label=f'ROC curve for class {i} (area = {roc_auc:.2f})')
+
+            ax.plot([0, 1], [0, 1], color='navy', lw=2, linestyle='--')
+            ax.set_xlim([0.0, 1.0])
+            ax.set_ylim([0.0, 1.05])
+            ax.set_xlabel('False Positive Rate')
+            ax.set_ylabel('True Positive Rate')
+            ax.set_title(f'Receiver Operating Characteristic ({model_name})')
+            ax.legend(loc="lower right")
+            st.pyplot(fig)
+
+
+        # Logistic Regression
+        log_reg = LogisticRegressionClassifier()
+        log_reg.fit(X_train, y_train)
+        y_pred_log_reg = log_reg.predict(X_test)
+        y_score_log_reg = log_reg.decision_function(X_test)
+        plot_classification_results(log_reg, X_test, y_test, y_pred_log_reg, y_score_log_reg, "Logistic Regression")
+
     with tabs[2]:
         st.header("K-means")
 
