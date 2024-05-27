@@ -3,6 +3,7 @@ import pandas as pd
 from sklearn.preprocessing import StandardScaler
 import plotly.express as px
 
+from algorithms.dbscan import DBSCANHandler
 from algorithms.eda import EDAHandler
 from algorithms.kmeans import KMeansHandler
 from algorithms.pca import PCAHandler
@@ -69,3 +70,16 @@ if uploaded_file is not None:
         kmeans_fig = px.scatter(x=pca_df["PC1"], y=pca_df["PC2"], color=kmeans_result.astype(str),
                                 color_discrete_map=cluster_colors, title="K-means Clustering")
         st.plotly_chart(kmeans_fig)
+
+        st.header("DBSCAN")
+
+        eps = st.number_input("Epsilon for DBSCAN", min_value=0.1, step=0.1)
+        min_samples = st.number_input("Min Samples for DBSCAN", min_value=1, step=1)
+
+        dbscan_handler = DBSCANHandler(scaled_df, eps, min_samples)
+        dbscan_result = dbscan_handler.perform_dbscan()
+
+        # Plot DBSCAN result
+        dbscan_fig = px.scatter(x=pca_df["PC1"], y=pca_df["PC2"], color=dbscan_result.astype(str),
+                                color_discrete_map=cluster_colors, title="DBSCAN Clustering")
+        st.plotly_chart(dbscan_fig)
