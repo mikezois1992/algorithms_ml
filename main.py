@@ -4,8 +4,11 @@ from sklearn.preprocessing import StandardScaler
 import plotly.express as px
 
 from algorithms.eda import EDAHandler
+from algorithms.kmeans import KMeansHandler
 from algorithms.pca import PCAHandler
 from algorithms.tsne import TSNEHandler
+
+import random
 
 st.title("Welcome to Michalis' Page")
 st.title("Upload a File")
@@ -46,3 +49,23 @@ if uploaded_file is not None:
         # Perform EDA
         eda_handler = EDAHandler(df)
         eda_handler.perform_eda()
+
+    with tabs[1]:
+        st.header("Classification Report")
+    with tabs[2]:
+        st.header("K-means")
+
+        num_clusters = st.number_input("Number of Clusters for K-means", min_value=1, step=1)
+
+        kmeans_handler = KMeansHandler(scaled_df, num_clusters)
+        kmeans_result = kmeans_handler.perform_kmeans()
+
+        # Assign colors to clusters
+        cluster_colors = {}
+        for cluster in set(kmeans_result):
+            cluster_colors[cluster] = f'#{random.randint(0, 0xFFFFFF):06x}'  # Generate random color
+
+        # Plot K-means result
+        kmeans_fig = px.scatter(x=pca_df["PC1"], y=pca_df["PC2"], color=kmeans_result.astype(str),
+                                color_discrete_map=cluster_colors, title="K-means Clustering")
+        st.plotly_chart(kmeans_fig)
