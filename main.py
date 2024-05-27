@@ -4,6 +4,7 @@ from sklearn.preprocessing import StandardScaler
 import plotly.express as px
 
 from algorithms.pca import PCAHandler
+from algorithms.tsne import TSNEHandler
 
 st.title("Welcome to Michalis' Page")
 st.title("Upload a File")
@@ -29,3 +30,12 @@ if uploaded_file is not None:
         # Plot PCA
         pca_fig = px.scatter(pca_df, x="PC1", y="PC2", title="PCA Visualization")
         st.plotly_chart(pca_fig)
+
+        st.header("t-SNE")
+
+        tsne_handler = TSNEHandler(scaled_df)
+        tsne_df = tsne_handler.perform_tsne()
+
+        # Plot t-SNE
+        tsne_fig = px.scatter(tsne_df, x="t-SNE1", y="t-SNE2", title="t-SNE Visualization")
+        st.plotly_chart(tsne_fig)
