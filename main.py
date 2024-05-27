@@ -3,6 +3,7 @@ import pandas as pd
 from sklearn.preprocessing import StandardScaler
 import plotly.express as px
 
+from algorithms.eda import EDAHandler
 from algorithms.pca import PCAHandler
 from algorithms.tsne import TSNEHandler
 
@@ -39,3 +40,9 @@ if uploaded_file is not None:
         # Plot t-SNE
         tsne_fig = px.scatter(tsne_df, x="t-SNE1", y="t-SNE2", title="t-SNE Visualization")
         st.plotly_chart(tsne_fig)
+
+        st.header("EDA")
+
+        # Perform EDA
+        eda_handler = EDAHandler(df)
+        eda_handler.perform_eda()
