@@ -11,6 +11,7 @@ from algorithms.eda import EDAHandler
 from algorithms.kmeans import KMeansHandler
 from algorithms.logistic_regression import LogisticRegressionClassifier
 from algorithms.pca import PCAHandler
+from algorithms.svm import SVMClassifier
 from algorithms.tsne import TSNEHandler
 
 import random
@@ -29,6 +30,7 @@ if uploaded_file is not None:
     tabs = st.tabs(["2D Visualization", "Classification", "Clustering"])
 
     with tabs[0]:
+        st.header("Clustering Algorithms")
         st.header("PCA")
 
         scaled_df = StandardScaler().fit_transform(df.iloc[:, :-1])
@@ -56,7 +58,7 @@ if uploaded_file is not None:
         eda_handler.perform_eda()
 
     with tabs[1]:
-        st.header("Logistic Regression")
+        st.header("Classification Algorithms")
 
         # Assuming the last column is the target variable
         X = df.iloc[:, :-1]
@@ -102,13 +104,19 @@ if uploaded_file is not None:
             ax.legend(loc="lower right")
             st.pyplot(fig)
 
-
         # Logistic Regression
         log_reg = LogisticRegressionClassifier()
         log_reg.fit(X_train, y_train)
         y_pred_log_reg = log_reg.predict(X_test)
         y_score_log_reg = log_reg.decision_function(X_test)
         plot_classification_results(log_reg, X_test, y_test, y_pred_log_reg, y_score_log_reg, "Logistic Regression")
+
+        # SVM
+        svm = SVMClassifier()
+        svm.fit(X_train, y_train)
+        y_pred_svm = svm.predict(X_test)
+        y_score_svm = svm.decision_function(X_test)
+        plot_classification_results(svm, X_test, y_test, y_pred_svm, y_score_svm, "SVM")
 
     with tabs[2]:
         st.header("K-means")
