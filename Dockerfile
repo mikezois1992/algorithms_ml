@@ -16,3 +16,4 @@ CMD ["streamlit", "run", "main.py"]
 ## Commands we run in Terminal
 # docker build -t algorithms_ml .
 # docker run -p 8501:8501 algorithms_ml
+# or streamlit run main.py
