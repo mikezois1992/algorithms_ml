@@ -1,13 +1,18 @@
-# Dockerfile, Image, Container
+## Dockerfile, Image, Container
 FROM python:3.12
 
-ADD main.py .
+WORKDIR /app
 
-RUN pip install streamlit
-RUN pip install pandas
-RUN pip install openpyxl
-RUN pip install matplotlib
-RUN pip install scikit-learn
-RUN pip install plotly
+ADD . /app
 
-CMD ["python", "./main.py"]
+# Install packages
+RUN pip install streamlit pandas openpyxl matplotlib scikit-learn plotly
+
+EXPOSE 8501
+
+# Execute Streamlit
+CMD ["streamlit", "run", "main.py"]
+
+## Commands we run in Terminal
+# docker build -t algorithms_ml .
+# docker run -p 8501:8501 algorithms_ml
